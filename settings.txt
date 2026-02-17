@@ -1,0 +1,11 @@
+default-branch=release/14.4
+labels=team-rocket,theme-aiml
+milestone="V 14.4.2"
+reviewer="Alex Bitar",AlxBit
+reviewer="Alexandre Dumont",dumontal
+reviewer="Alexandre Vigny",avigny
+reviewer="Antonin Soulier",AntoninDataiku
+reviewer="Frédéric Terrazzoni",fterrazzoni
+reviewer="Gaëtan Millerand",GaetanMillerand
+reviewer="Samaël Françon",SamaelFrancon
+reviewer="Tristan Leclercq",tristanleclercq
