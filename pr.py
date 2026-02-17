@@ -10,7 +10,7 @@ def prompt_with_default(question: str, default: str) -> str:
     return response if response else default
 
 
-def build_pr_create_command() -> str:
+def build_pr_create_command(dry_run: bool = False) -> str:
     settings = get_settings()
     result = "gh pr create -a @me"
 
@@ -22,6 +22,8 @@ def build_pr_create_command() -> str:
         result += " --fill-first"
     else:
         raise NotImplementedError("Only 'fill-first' (using first commit title and description) option is currently implemented.")
+    if dry_run:
+        result += " --dry-run"
 
     default_branch = settings.get("default-branch", "")
     base_branch = prompt_with_default("Base branch", default_branch)
@@ -55,8 +57,8 @@ def build_pr_create_command() -> str:
     return result
 
 
-def handle_pr_create() -> int:
-    result = build_pr_create_command()
+def handle_pr_create(args) -> int:
+    result = build_pr_create_command(dry_run=args.dry_run)
     confirmation = prompt_with_default(f"Run this command?\n{result}", "y").lower()
 
     if confirmation == "y":
@@ -65,4 +67,3 @@ def handle_pr_create() -> int:
 
     print("Cancelled.")
     return 1
-

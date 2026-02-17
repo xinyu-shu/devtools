@@ -15,6 +15,11 @@ def build_parser() -> argparse.ArgumentParser:
     pr_subparsers = pr_parser.add_subparsers(dest="pr_command")
 
     create_parser = pr_subparsers.add_parser("create", help="Create a PR")
+    create_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Add --dry-run to the gh pr create command",
+    )
     create_parser.set_defaults(handler=handle_pr_create)
 
     return parser
@@ -28,7 +33,7 @@ def main() -> int:
         parser.print_help()
         return 2
 
-    return args.handler()
+    return args.handler(args)
 
 
 if __name__ == "__main__":
