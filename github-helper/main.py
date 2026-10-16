@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""CLI for different things (Github PR, GCP VM)"""
+"""GitHub helper CLI with GCP VM utilities."""
 
 import argparse
 import sys
 
 from pr import handle_pr_create
-from gcp import handle_gcp
+from gcp import handle_gcp, handle_dss_conf
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Devtools")
+    parser = argparse.ArgumentParser(description="GitHub helper and GCP VM utilities")
     subparsers = parser.add_subparsers(dest="command")
 
     pr_parser = subparsers.add_parser("pr", help="PR-related commands")
@@ -38,6 +38,9 @@ def build_parser() -> argparse.ArgumentParser:
         help="Show command without executing",
     )
     vm_parser.set_defaults(handler=handle_gcp)
+
+    dss_conf_parser = gcp_subparsers.add_parser("dss-conf", help="Setup DSS config directory")
+    dss_conf_parser.set_defaults(handler=handle_dss_conf)
 
     return parser
 

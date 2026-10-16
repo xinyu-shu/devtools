@@ -141,3 +141,11 @@ def handle_gcp(args) -> int:
 
     print("Cancelled.")
     return 1
+
+
+def handle_dss_conf(args) -> int:
+    print("To get the desired URL for DSS installation, visit:")
+    print("https://downloads.dataiku.com/public/dss/")
+    subprocess.run(["mkdir", "dss"], check=False)
+    subprocess.run(["cd", "dss"], check=False)
+    return 0

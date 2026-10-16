@@ -1,6 +1,6 @@
-default-branch=release/14.6
+default-branch=release/15.2
 labels=team-rocket,theme-aiml
-milestone="V 14.6.2"
+milestone="V 15.2.2"
 reviewer="Alex Bitar",AlxBit
 reviewer="Alexandre Dumont",dumontal
 reviewer="Alexandre Vigny",avigny
