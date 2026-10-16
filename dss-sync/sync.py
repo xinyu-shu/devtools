@@ -22,6 +22,13 @@ from typing import List, Optional, Tuple
 TOOL_DIR = Path(__file__).resolve().parent
 DEFAULT_CONFIG = TOOL_DIR / "config.ini"
 HOST_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.-]*$")
+# Share the resource list between preflight validation and the transfer plan.
+RESOURCE_DIRECTORIES = (
+    "container-exec",
+    "code-envs/python",
+    "llm/presets",
+    "enterprise-asset-library",
+)
 
 
 @dataclass(frozen=True)
@@ -110,7 +117,10 @@ def inspect_source(source: Path, allow_dirty: bool) -> Tuple[str, int]:
         source / "src/main/python/dataikuapi",
         source / "dist/frontend",
         source / "lib",
+        source / "packagers/studio/scripts",
+        source / "packagers/dkuinstall",
     ]
+    required.extend(source / "resources" / directory for directory in RESOURCE_DIRECTORIES)
     missing = [str(item) for item in required if not item.is_dir()]
     if missing:
         fail("missing locally built/source directories: " + ", ".join(missing))
@@ -162,14 +172,18 @@ def run_all(commands: List[List[str]], dry_run: bool, jobs: int) -> None:
 def synchronize(source: Path, remote: Remote, dry_run: bool, jobs: int) -> None:
     # These directories fully belong to the local checkout and can be mirrored.
     commands = [
-        rsync_command(source / "src/main/python/dataiku", remote, "python/dataiku", delete=True),
+        # The packager overlays lambda/src/main/python/dataiku/apinode here.
+        # Excluding it also protects that remote-only subtree from --delete.
+        rsync_command(source / "src/main/python/dataiku", remote, "python/dataiku", delete=True,
+                      extra=["--exclude=/apinode/"]),
         rsync_command(source / "src/main/python/dataikuapi", remote, "python/dataikuapi", delete=True),
         rsync_command(source / "dist/frontend", remote, "frontend", delete=True),
-        rsync_command(source / "resources/container-exec", remote, "resources/container-exec", delete=True),
-        rsync_command(source / "resources/code-envs/python", remote, "resources/code-envs/python", delete=True),
-        rsync_command(source / "resources/llm/presets", remote, "resources/llm/presets", delete=True),
         rsync_command(source / "lib", remote, "lib", delete=True),
     ]
+    commands.extend(
+        rsync_command(source / "resources" / directory, remote, f"resources/{directory}", delete=True)
+        for directory in RESOURCE_DIRECTORIES
+    )
     # Mirror only JARs: package dist/ may also contain generated .properties files.
     commands.append(rsync_command(source / "dist", remote, "dist", delete=True,
                                   extra=["--include=*/", "--include=*.jar", "--exclude=*"]))
